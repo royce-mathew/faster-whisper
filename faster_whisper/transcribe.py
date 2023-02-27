@@ -1,6 +1,5 @@
 import collections
 import zlib
-
 from typing import BinaryIO, List, Optional, Tuple, Union
 
 import ctranslate2
@@ -94,6 +93,7 @@ class WhisperModel:
     def transcribe(
         self,
         input_file: Union[str, BinaryIO],
+        input_buffer: Optional[np.ndarray] = None,
         language: Optional[str] = None,
         task: str = "transcribe",
         beam_size: int = 5,
@@ -152,9 +152,12 @@ class WhisperModel:
             - a generator over transcribed segments
             - an instance of AudioInfo
         """
-        audio = decode_audio(
-            input_file, sampling_rate=self.feature_extractor.sampling_rate
-        )
+        if input_buffer:
+            audio = input_buffer
+        else:
+            audio = decode_audio(
+                input_file, sampling_rate=self.feature_extractor.sampling_rate
+            )
         features = self.feature_extractor(audio)
 
         if language is None:
