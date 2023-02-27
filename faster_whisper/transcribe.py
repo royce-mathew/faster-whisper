@@ -92,8 +92,7 @@ class WhisperModel:
 
     def transcribe(
         self,
-        input_file: Union[str, BinaryIO],
-        input_buffer: Optional[np.ndarray] = None,
+        audio: Union[str, BinaryIO, np.ndarray],
         language: Optional[str] = None,
         task: str = "transcribe",
         beam_size: int = 5,
@@ -119,7 +118,7 @@ class WhisperModel:
         """Transcribes an input file.
 
         Arguments:
-          input_file: Path to the input file or a file-like object.
+          audio: Path to the input file or a file-like object. Can also be the audio waveform buffer.
           language: The language spoken in the audio. It should be a language code such
             as "en" or "fr". If not set, the language will be detected in the first 30 seconds
             of audio.
@@ -152,11 +151,9 @@ class WhisperModel:
             - a generator over transcribed segments
             - an instance of AudioInfo
         """
-        if input_buffer:
-            audio = input_buffer
-        else:
+        if type(audio) != np.ndarray:
             audio = decode_audio(
-                input_file, sampling_rate=self.feature_extractor.sampling_rate
+                audio, sampling_rate=self.feature_extractor.sampling_rate
             )
         features = self.feature_extractor(audio)
 
